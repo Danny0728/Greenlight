@@ -1,0 +1,2 @@
+1. When you run a go run command default port is 4000 and default env is dev, so to change this
+-> go run ./cmd/api -port=3030 -env=production
