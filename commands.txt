@@ -1,2 +1,9 @@
 1. When you run a go run command default port is 4000 and default env is dev, so to change this
 -> go run ./cmd/api -port=3030 -env=production
+
+2. cURL command to test that if API takes more than maxBytes
+-> curl -d @tmp/largefile.json localhost:4000/v1/movies
+
+3. To add data through terminal 
+BODY='{"title":"Moana","year":2016,"runtime":"107 mins","genres":["animation","adventure"]}'
+curl -i -d "$BODY" localhost:4000/v1/movies
