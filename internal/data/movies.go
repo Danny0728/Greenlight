@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -30,7 +31,9 @@ func (m MovieModel) Insert(movie *Movie) error {
 				RETURNING id,created_at,version `
 
 	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
-	return m.DB.QueryRow(sqlQuery, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return m.DB.QueryRowContext(ctx, sqlQuery, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {
@@ -42,7 +45,9 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 				FROM movies where id = $1`
 
 	var movie Movie
-	err := m.DB.QueryRow(sqlQuery, id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := m.DB.QueryRowContext(ctx, sqlQuery, id).Scan(
 		&movie.ID,
 		&movie.CreatedAt,
 		&movie.Title,
@@ -61,15 +66,27 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	}
 	return &movie, nil
 }
+
 func (m MovieModel) Update(movie *Movie) error {
 
 	sqlQuery := `UPDATE movies 
 					SET title=$1, year=$2, runtime=$3, genres=$4, version = version + 1
-					WHERE id = $5
+					WHERE id = $5 AND version = $6
 				RETURNING version`
 
-	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres), movie.ID}
-	return m.DB.QueryRow(sqlQuery, args...).Scan(&movie.Version)
+	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres), movie.ID, movie.Version}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := m.DB.QueryRowContext(ctx, sqlQuery, args...).Scan(&movie.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (m MovieModel) Delete(id int64) error {
@@ -78,7 +95,9 @@ func (m MovieModel) Delete(id int64) error {
 	}
 
 	sqlQuery := `DELETE FROM movies WHERE id=$1`
-	result, err := m.DB.Exec(sqlQuery, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	result, err := m.DB.ExecContext(ctx, sqlQuery, id)
 	if err != nil {
 		return err
 	}
