@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Danny0728/Greenlight/internal/validator"
@@ -67,6 +68,54 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
+func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+	sqlQuery := fmt.Sprintf(`
+	SELECT COUNT(*) OVER(),id,created_at, title,year,runtime,genres,version 
+			FROM movies 
+			WHERE (to_tsvector('simple',title) @@ plainto_tsquery('simple',$1) OR $1 = '')
+			AND (genres @> $2 OR $2 = '{}')
+	ORDER BY %s %s, id ASC
+	LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	args := []interface{}{title, pq.Array(genres), filters.limit(), filters.offset()}
+
+	rows, err := m.DB.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+	defer rows.Close()
+
+	var movies []*Movie
+	totalRecords := 0
+	for rows.Next() {
+		var movie Movie
+
+		err := rows.Scan(
+			&totalRecords,
+			&movie.ID,
+			&movie.CreatedAt,
+			&movie.Title,
+			&movie.Year,
+			&movie.Runtime,
+			pq.Array(&movie.Genres),
+			&movie.Version,
+		)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+
+		movies = append(movies, &movie)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, Metadata{}, err
+	}
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+	return movies, metadata, nil
+}
+
 func (m MovieModel) Update(movie *Movie) error {
 
 	sqlQuery := `UPDATE movies 
@@ -118,7 +167,7 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 
 	v.Check(movie.Year != 0, "year", "must be provided")
 	v.Check(movie.Year >= 1888, "year", "must be greater than 1888")
-	v.Check(movie.Year < (int32(time.Now().Year())), "year", "must not be the future year")
+	v.Check(movie.Year <= (int32(time.Now().Year())), "year", "must not be the future year")
 
 	v.Check(movie.Runtime != 0, "runtime", "must be provided")
 	v.Check(movie.Runtime > 0, "runtime", "must be a positive integer")
