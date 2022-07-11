@@ -24,3 +24,9 @@ xargs -I % -P8 curl -X PATCH -d '{"runtime": "97 mins"}' "localhost:4000/v1/movi
 
 9. To see the total time taken by the cURL request 
 curl -w '\nTime: %{time_total}s \n' localhost:4000/v1/movies/1
+
+10. Query String should be in the following format.
+curl "localhost:4000/v1/movies?title=godfather&genres=crime,drama&page=1&page_size=5&sort=year"
+
+11. Query string without quotes should only have one filter
+curl localhost:4000/v1/movies?title=avengers
