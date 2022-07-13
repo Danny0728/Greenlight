@@ -30,3 +30,7 @@ curl "localhost:4000/v1/movies?title=godfather&genres=crime,drama&page=1&page_si
 
 11. Query string without quotes should only have one filter
 curl localhost:4000/v1/movies?title=avengers
+
+12. To make concurrent request for rate limit testing 
+for i in {1..6}; do curl http://localhost:4000/v1/healthcheck; done
+
