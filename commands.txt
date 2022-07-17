@@ -34,3 +34,6 @@ curl localhost:4000/v1/movies?title=avengers
 12. To make concurrent request for rate limit testing 
 for i in {1..6}; do curl http://localhost:4000/v1/healthcheck; done
 
+13. bcrypt func GenerateFromPassword returns a hash string in the following format.
+$2b$[cost]$[22-character salt][31-character hash]
+
