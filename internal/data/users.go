@@ -152,7 +152,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 	if user.Password.plaintext != nil {
 		validatePasswordPlaintext(v, *user.Password.plaintext)
 	}
-	if user.Password.hash != nil {
+	if user.Password.hash == nil {
 		panic("missing password hash for user")
 	}
 }
