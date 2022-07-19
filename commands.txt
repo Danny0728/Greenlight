@@ -37,3 +37,6 @@ for i in {1..6}; do curl http://localhost:4000/v1/healthcheck; done
 13. bcrypt func GenerateFromPassword returns a hash string in the following format.
 $2b$[cost]$[22-character salt][31-character hash]
 
+14. How to add users with taken time 
+    BODY='{"name": "Arthur Morgan", "email": "arthur@gmail.com", "password": "pa55word"}'
+    curl -w '\nTime: %{time_total}\n' -d "$BODY" localhost:4000/v1/users
