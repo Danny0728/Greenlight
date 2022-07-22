@@ -6,14 +6,13 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
-	"log"
 	"time"
 
 	"github.com/Danny0728/Greenlight/internal/validator"
 )
 
 const (
-	scopeActivation = "activation"
+	ScopeActivation = "activation"
 )
 
 type Token struct {
@@ -34,12 +33,11 @@ func generateToken(userID int64, ttl time.Duration, scope string) (*Token, error
 		Scope:  scope,
 	}
 
-	randomBytes := make([]byte, 15)
+	randomBytes := make([]byte, 16)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(randomBytes)
 
 	token.PlainText = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
 
