@@ -11,6 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var AnonymousUser = &User{}
+
 type User struct {
 	ID         int64     `json:"id"`
 	Created_at time.Time ` json:"created_at"`
@@ -33,6 +35,10 @@ type UserModel struct {
 var (
 	ErrDuplicateEmail = errors.New("duplicate email")
 )
+
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
 
 func (m UserModel) Insert(user *User) error {
 	sqlQuery := `INSERT INTO users(name,email,password_hash,activated)
@@ -109,6 +115,7 @@ func (m UserModel) Update(user *User) error {
 	return nil
 }
 func (m UserModel) GetForToken(tokenScope, tokenPlainText string) (*User, error) {
+
 	tokenHash := sha256.Sum256([]byte(tokenPlainText))
 
 	sqlQuery := `
