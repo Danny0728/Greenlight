@@ -44,3 +44,12 @@ func (m PermissionModel) GetAllForUser(userID int64) (Permissions, error) {
 	}
 	return permissions, nil
 }
+
+func (p Permissions) Include(code string) bool {
+	for i := range p {
+		if code == p[i] {
+			return true
+		}
+	}
+	return false
+}
