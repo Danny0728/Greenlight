@@ -40,3 +40,6 @@ $2b$[cost]$[22-character salt][31-character hash]
 14. How to add users with taken time 
     BODY='{"name": "Arthur Morgan", "email": "arthur@gmail.com", "password": "pa55word"}'
     curl -w '\nTime: %{time_total}\n' -d "$BODY" localhost:4000/v1/users
+
+15. How to send a CORS request to get response through cURL (cause browsers have same-origin policy which denies access to JS)
+ curl -H "Origin: http://localhost:9000" http://localhost:4000/v1/healthcheck
