@@ -7,6 +7,7 @@ require github.com/julienschmidt/httprouter v1.3.0
 require github.com/lib/pq v1.10.6
 
 require (
+	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/go-mail/mail/v2 v2.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
