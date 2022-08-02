@@ -43,3 +43,6 @@ $2b$[cost]$[22-character salt][31-character hash]
 
 15. How to send a CORS request to get response through cURL (cause browsers have same-origin policy which denies access to JS)
  curl -H "Origin: http://localhost:9000" http://localhost:4000/v1/healthcheck
+
+16. Command to show the targets and it's use on makefile
+make help
