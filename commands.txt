@@ -49,3 +49,20 @@ make help
 
 17. To remove everything from the module cache 
 go clean -modcache
+
+18. Command to run the build with necessary flag values
+./bin/api -port=4040 -db-dsn=postgres://greenlight:pa55word@localhost/greenlight?sslmode=disable
+
+19. command to override linking phase
+go build -ldflags='s' -o=./bin/api ./cmd/api
+
+20. To see distribution list
+go tool dist list
+
+21. to specifically create binary file for particular os and env 
+GOOS=linux GOARCH=amd64 go build {args}
+GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/api ./cmd/api
+
+22. if c library has been changes since the last build then use -a flag in build command or use
+go build -a -o=/bin/foo ./cmd/foo # Force all packages to be rebuilt
+go clean -cache # Remove everything from the build cache
