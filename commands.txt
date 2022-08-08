@@ -46,3 +46,6 @@ $2b$[cost]$[22-character salt][31-character hash]
 
 16. Command to show the targets and it's use on makefile
 make help
+
+17. To remove everything from the module cache 
+go clean -modcache
