@@ -1,4 +1,3 @@
-#To load variables from envrc
 include .envrc
 
 # ============================================================ #
